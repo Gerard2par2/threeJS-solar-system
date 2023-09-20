@@ -2,6 +2,17 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { PlanetObjectType } from './types/types';
 
+let paused = false;
+
+const pauseIndicator = document.getElementById('pauseIndicator');
+
+window.addEventListener('keydown', (event) => {
+    if (event.key === ' ') { // Vérifiez si la touche appuyée est Espace
+        paused = !paused; // Inversez l'état de rotationPaused
+        pauseIndicator?.classList.toggle('hidden');
+    }
+});
+
 // Initialisation of the scene / camera / renderer
 let scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -15,11 +26,11 @@ document.body.appendChild( renderer.domElement );
 
 camera.position.z = 20;
 
-// Initialisation of your objects / materials / light
 let solarSystem = new THREE.Object3D();
 scene.add(solarSystem);
-
 let ball = new THREE.SphereGeometry(1, 32, 32);
+
+// ----- Materials -----
 
 const loader = new THREE.TextureLoader();
 
@@ -50,7 +61,7 @@ const uranusMaterial = new THREE.MeshStandardMaterial({map: loader.load('/assets
 
 const neptuneMaterial = new THREE.MeshStandardMaterial({map: loader.load('/assets/neptune.jpg')});
 
-const planets: PlanetObjectType[] = [];
+// ----- Lights -----
 
 const sunLight = new THREE.PointLight(0xffffff, 1);
 sunLight.position.set(0, 0, 0);
@@ -63,6 +74,10 @@ solarSystem.add(sunLight);
 const ambiantLight = new THREE.AmbientLight(0xffffff, 0.01);
 scene.add(ambiantLight);
 
+
+
+// ----- Celestial bodies -----
+const planets: PlanetObjectType[] = [];
 
 const sunGroup = new THREE.Group();
 const sun = new THREE.Mesh(ball, sunTextureMaterial);
@@ -157,6 +172,8 @@ neptune.receiveShadow = true;
 
 planets.push({planet: neptune, moons: [], distance: uranus.position.x, step: 0.001, rotationStep: 0.01, o: 305});
 
+// ----- Add to scene -----
+
 solarSystem.add(sun);
 
 for(let planetObject of planets) {
@@ -168,6 +185,8 @@ for(let planetObject of planets) {
     }
 }
 
+// ----- Controls -----
+
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // Ajoute un amortissement pour des mouvements plus fluides
@@ -176,6 +195,8 @@ controls.rotateSpeed = 0.5; // Vitesse de rotation
 controls.zoomSpeed = 1.2; // Vitesse de zoom
 controls.panSpeed = 0.8; // Vitesse de déplacement
 
+// ----- Render & animation -----
+
 function rotatePlanet(object: PlanetObjectType) {
     object.planet.position.x = object.distance * Math.cos(object.o);
     object.planet.position.z = object.distance * Math.sin(object.o);
@@ -183,22 +204,24 @@ function rotatePlanet(object: PlanetObjectType) {
     object.o = object.o < 360 ? object.o += object.step : 0;
 }
 
-// This is executed for each frames
 function render() {
     requestAnimationFrame( render );
 
     controls.update();
 
-    sun.rotation.y += 0.001;
+    if (!paused) {
+        sun.rotation.y += 0.001;
 
-    for(let planetObject of planets) {
-        rotatePlanet(planetObject);
-        if(!planetObject.moons) {
-            continue;
-        } for(let moon of planetObject.moons) {
-            rotatePlanet(moon);
+        for(let planetObject of planets) {
+            rotatePlanet(planetObject);
+            if(!planetObject.moons) {
+                continue;
+            } for(let moon of planetObject.moons) {
+                rotatePlanet(moon);
+            }
         }
     }
+
 
     renderer.render( scene, camera );
 }
