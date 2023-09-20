@@ -1,5 +1,5 @@
 import * as Three from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PlanetDataType, PlanetObjectType } from './types/types';
 
 // ----- Variables -----
@@ -26,7 +26,6 @@ let renderer = new Three.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = Three.PCFSoftShadowMap;
-
 
 document.body.appendChild( renderer.domElement );
 
@@ -72,7 +71,7 @@ sunLight.position.set(0, 0, 0);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 2048;
 sunLight.shadow.mapSize.height = 2048;
-sunLight.shadow.camera.near = 500;
+sunLight.shadow.camera.near = 0.5;
 solarSystem.add(sunLight);
 
 const ambiantLight = new Three.AmbientLight(0xffffff, 0.01);
