@@ -92,8 +92,8 @@ planetDataMap.set(sun, {
     name: 'Sun',
     distanceToSun: 0,
     diameter: 1392684,
-    weight: "2.192x1027 tons",
-    rotationPeriod: 25,
+    weight: "1,989 × 10^27 tons",
+    rotationPeriod: 0,
     atmospherePressure: 0,
 });
 
@@ -108,8 +108,8 @@ planetDataMap.set(mercury, {
     name: 'Mercury',
     distanceToSun: 0.4,
     diameter: 4878,
-    weight: "3.302x1023 tons",
-    rotationPeriod: 58.65,
+    weight: "3,285 × 10^20 tons",
+    rotationPeriod: 59,
     atmospherePressure: 0,
 });
 
@@ -126,8 +126,8 @@ planetDataMap.set(venus, {
     name: 'Venus',
     distanceToSun: 0.7,
     diameter: 12104,
-    weight: "4.869x1024 tons",
-    rotationPeriod: 243,
+    weight: "4,867 × 10^21 tons",
+    rotationPeriod: 225,
     atmospherePressure: 92,
 });
 
@@ -144,8 +144,8 @@ planetDataMap.set(earth, {
     name: 'Earth',
     distanceToSun: 1,
     diameter: 12756,
-    weight: "5.972x1024 tons",
-    rotationPeriod: 1,
+    weight: "5,972 × 10^21 tons",
+    rotationPeriod: 365,
     atmospherePressure: 1,
 });
 
@@ -159,8 +159,8 @@ planetDataMap.set(moon, {
     name: 'Moon',
     distanceToSun: 1,
     diameter: 3475,
-    weight: "7.349x1022 tons",
-    rotationPeriod: 27.32,
+    weight: "8.1 x 10^19 tons",
+    rotationPeriod: 1,
     atmospherePressure: 0,
 });
 
@@ -179,8 +179,8 @@ planetDataMap.set(mars, {
     name: 'Mars',
     distanceToSun: 1.5,
     diameter: 6792,
-    weight: "6.39x1023 tons",
-    rotationPeriod: 1.03,
+    weight: "6,39 × 10^20 tons",
+    rotationPeriod: 354,
     atmospherePressure: 0.006,
 });
 
@@ -197,8 +197,8 @@ planetDataMap.set(jupiter, {
     name: 'Jupiter',
     distanceToSun: 5.2,
     diameter: 142984,
-    weight: "1.898x1027 tons",
-    rotationPeriod: 0.41,
+    weight: "1,898 × 10^24 tons",
+    rotationPeriod: 4333,
     atmospherePressure: 0,
 });
 
@@ -215,8 +215,8 @@ planetDataMap.set(saturn, {
     name: 'Saturn',
     distanceToSun: 9.5,
     diameter: 120536,
-    weight: "5.683x1026 tons",
-    rotationPeriod: 0.45,
+    weight: "5,683 × 10^23 tons",
+    rotationPeriod: 10756,
     atmospherePressure: 0,
 });
 
@@ -234,7 +234,7 @@ planetDataMap.set(uranus, {
     distanceToSun: 19.2,
     diameter: 51118,
     weight: "8.681x1025 tons",
-    rotationPeriod: 0.72,
+    rotationPeriod: 30687,
     atmospherePressure: 0,
 });
 
@@ -251,8 +251,8 @@ planetDataMap.set(neptune, {
     name: 'Neptune',
     distanceToSun: 30.1,
     diameter: 49528,
-    weight: "1.024x1026 tons",
-    rotationPeriod: 0.67,
+    weight: "8,681 × 10^22 tons",
+    rotationPeriod: 60190,
     atmospherePressure: 0,
 });
 
@@ -314,11 +314,11 @@ function updateFollowedObjectIndicator(data: PlanetDataType | undefined) {
     } else {
         innerHtml = `
         <h1>${data.name}</h1>
-        <p>Distance to the sun: ${data.distanceToSun} AU</p>
+        ${data.distanceToSun > 0 ? `<p>Distance to the sun: ${data.distanceToSun} AU</p>` : ''}
         <p>Diameter: ${data.diameter} km</p>
         <p>Weight: ${data.weight}</p>
-        <p>Rotation period: ${data.rotationPeriod} days</p>
-        <p>Atmosphere pressure: ${data.atmospherePressure} bar</p>`;
+        ${data.rotationPeriod > 0 ? `<p>Rotation period: ${data.rotationPeriod <= 365 ? data.rotationPeriod + ' days': Math.round(data.rotationPeriod / 365 * 1000) / 1000 + ' years'}</p>` : ''}
+        ${data.atmospherePressure > 0 ? `<p>Atmosphere pressure: ${data.atmospherePressure} bar</p>` : ''} `;
     }
     followedObjectIndicator!.innerHTML = innerHtml;
 }
