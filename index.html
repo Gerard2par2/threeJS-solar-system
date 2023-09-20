@@ -8,7 +8,15 @@
       body {
         overflow: hidden;
         margin: 0;
-      } #pauseIndicator {
+      } #followedObjectIndicator{
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: bold ;
+        color: white;
+        right: 1em;
+        top: 1em;
+        position: absolute;
+      }
+      #pauseIndicator {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: bold ;
         color: white;
@@ -24,6 +32,7 @@
   <body>
     <div id="app"></div>
     <div id="pauseIndicator" class="hidden">Paused</div>
+    <div id="followedObjectIndicator" class="hidden"></div>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>
