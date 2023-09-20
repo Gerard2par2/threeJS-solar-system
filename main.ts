@@ -313,6 +313,11 @@ function onObjectClick(event: MouseEvent) {
             return;
         }
     } 
+
+    if(followedPlanet) {
+        resetCameraPosition();
+    }
+
     // If no object was clicked or the clicked object was already followed, reset the followed object
     followedPlanet = null;
 
@@ -322,7 +327,6 @@ function onObjectClick(event: MouseEvent) {
         updateFollowedObjectIndicator(undefined);
     }
     // Reset the camera position
-    resetCameraPosition();
 }
 
 function rotatePlanet(object: PlanetObjectType) {
