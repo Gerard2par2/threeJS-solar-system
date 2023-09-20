@@ -8,6 +8,7 @@ let paused = false;
 // Planet currently followed by the camera
 let followedPlanet: Three.Object3D<Three.Object3DEventMap> | null = null;
 
+// ----- Constants -----
 // Map to find the name of the planets with the 3D Objects
 const planetDataMap = new Map<Three.Object3D<Three.Object3DEventMap>, PlanetDataType>();
 
@@ -51,6 +52,10 @@ const mercuryMaterial = new Three.MeshStandardMaterial({map: loader.load('/asset
 const venusMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/venus.jpg'),});
 
 const earthMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/earth.jpg')});
+
+const earthCloudsMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/earth_clouds.png'), transparent: true});
+earthCloudsMaterial.transparent = true;
+earthCloudsMaterial.opacity = 0.8;
 
 const moonMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/moon.jpg')});
 
@@ -129,6 +134,10 @@ const earth = createPlanet(earthMaterial, 0.3, sun.scale.x * 16, {
     rotationPeriod: 365,
     atmospherePressure: 1,
 });
+
+const earthClouds = new Three.Mesh(ball, earthCloudsMaterial);
+earthClouds.scale.set(1.01, 1.01, 1.01);
+earth.add(earthClouds);
 
 const moon = createPlanet(moonMaterial, 0.1, earth.position.x / 2, {
     name: 'Moon',
@@ -297,10 +306,13 @@ function onObjectClick(event: MouseEvent) {
 
     if (intersects.length > 0) {
         // Get the first intersected object
-        const clickedObject = intersects[0].object;
+        let clickedObject = intersects[0].object;
 
         if(followedPlanet !== clickedObject) {
             // Set followed planter to the clicked object
+            if(clickedObject === earthClouds) {
+                clickedObject = earth;
+            }
             followedPlanet = clickedObject;
             if(followedObjectIndicator) {
                 // Show the followed object indicator and update the text
