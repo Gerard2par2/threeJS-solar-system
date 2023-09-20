@@ -2,29 +2,37 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { PlanetObjectType } from './types/types';
 
+// ----- Variables -----
 let paused = false;
+
+// Planet currently followed by the camera
 let followedPlanet: THREE.Object3D<THREE.Object3DEventMap> | null = null;
-let planetNameMap = new Map<THREE.Object3D<THREE.Object3DEventMap>, string>();
+
+// Map to find the name of the planets with the 3D Objects
+const planetNameMap = new Map<THREE.Object3D<THREE.Object3DEventMap>, string>();
 
 const pauseIndicator = document.getElementById('pauseIndicator');
 const followedObjectIndicator = document.getElementById('followedObjectIndicator');
 
-// Initialisation of the scene / camera / renderer
+// ----- Scene, Renderer & Camera-----
+
 let scene = new THREE.Scene();
+
 let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+camera.position.z = 20;
+
 let renderer = new THREE.WebGLRenderer();
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+
 document.body.appendChild( renderer.domElement );
 
-
-camera.position.z = 20;
+// ----- Solar System & Ball -----
 
 let solarSystem = new THREE.Object3D();
-scene.add(solarSystem);
 let ball = new THREE.SphereGeometry(1, 32, 32);
 
 // ----- Materials -----
@@ -41,8 +49,7 @@ const sunEmissiveMaterial = new THREE.MeshStandardMaterial({
 
 const mercuryMaterial = new THREE.MeshStandardMaterial({map: loader.load('/assets/mercury.jpg')});
 
-const venusMaterial = new THREE.MeshStandardMaterial({
-    map: loader.load('/assets/venus.jpg'),});
+const venusMaterial = new THREE.MeshStandardMaterial({map: loader.load('/assets/venus.jpg'),});
 
 const earthMaterial = new THREE.MeshStandardMaterial({map: loader.load('/assets/earth.jpg')});
 
@@ -116,13 +123,14 @@ planetNameMap.set(earth, 'Earth');
 
 const moon = new THREE.Mesh(ball, moonMaterial);
 moon.scale.set(0.3,0.3,0.3);
-moon.position.x -= earth.position.x - earth.scale.x * 2
+moon.position.x = earth.position.x / 2;
 moon.castShadow = true;
 moon.receiveShadow = true;
 
 planetNameMap.set(moon, 'Moon');
 
-planets.push({planet: earth, moons: [{planet: moon, distance: moon.position.x, step: 0.001, rotationStep: 0.01, o:0}
+planets.push({planet: earth, moons: [
+    {planet: moon, distance: moon.position.x, step: 0.001, rotationStep: 0.01, o:0}
 ], distance: earth.position.x, step: 0.001, rotationStep: 0.01, o: 0})
 
 // MARS
@@ -181,7 +189,7 @@ planetNameMap.set(neptune, 'Neptune');
 planets.push({planet: neptune, moons: [], distance: uranus.position.x, step: 0.001, rotationStep: 0.01, o: 305});
 
 // ----- Add to scene -----
-
+scene.add(solarSystem);
 solarSystem.add(sun);
 
 for(let planetObject of planets) {
@@ -230,43 +238,54 @@ function resetCameraPosition() {
 } 
 
 
-function onObjectClick(event) {
+function onObjectClick(event: MouseEvent) {
+    // Put the mouse position in a verctor 2
     const mouse = new THREE.Vector2();
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
+    // Create a raycaster from camera's direction and the mouse's position
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
 
+    // Get the objects that intersect with the raycaster
     const intersects = raycaster.intersectObjects(solarSystem.children);
 
     if (intersects.length > 0) {
+        // Get the first intersected object
         const clickedObject = intersects[0].object;
-        console.log('Objet cliqué :', clickedObject);
 
         if(followedPlanet !== clickedObject) {
-            console.log("1")
+            // Set followed planter to the clicked object
             followedPlanet = clickedObject;
             if(followedObjectIndicator) {
+                // Show the followed object indicator and update the text
                 followedObjectIndicator.classList.remove('hidden');
                 followedObjectIndicator.innerText = `${planetNameMap.get(followedPlanet)}`
             }
+            // Follow the object
             followObject(followedPlanet);
         } else {
+            // Reset the followed object
             followedPlanet = null;
             if(followedObjectIndicator) {
+                // Hide the followed object indicator and reset the text
                 followedObjectIndicator.classList.add('hidden');
                 followedObjectIndicator.innerText = '';
             }
+            // Reset the camera position
             resetCameraPosition();
         }
     }
 }
 
 function rotatePlanet(object: PlanetObjectType) {
+    // Rotate the object using polar coordinates
     object.planet.position.x = object.distance * Math.cos(object.o);
     object.planet.position.z = object.distance * Math.sin(object.o);
+    // Rotate the planet around itself
     object.planet.rotation.y += object.rotationStep;
+    // Increment the angle
     object.o = object.o < 360 ? object.o += object.step : 0;
 }
 
