@@ -6,3 +6,12 @@ export type PlanetObjectType = {
     rotationStep: number;
     o: number;
 }
+
+export type PlanetDataType = {
+    name: String;
+    distanceToSun: number;
+    diameter: number;
+    weight: string;
+    rotationPeriod: number;
+    atmospherePressure: number;
+}

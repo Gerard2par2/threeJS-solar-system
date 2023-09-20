@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { PlanetObjectType } from './types/types';
+import { PlanetDataType, PlanetObjectType } from './types/types';
 
 // ----- Variables -----
 let paused = false;
@@ -9,7 +9,7 @@ let paused = false;
 let followedPlanet: THREE.Object3D<THREE.Object3DEventMap> | null = null;
 
 // Map to find the name of the planets with the 3D Objects
-const planetNameMap = new Map<THREE.Object3D<THREE.Object3DEventMap>, string>();
+const planetDataMap = new Map<THREE.Object3D<THREE.Object3DEventMap>, PlanetDataType>();
 
 const pauseIndicator = document.getElementById('pauseIndicator');
 const followedObjectIndicator = document.getElementById('followedObjectIndicator');
@@ -88,7 +88,14 @@ const sunEmissive = new THREE.Mesh(ball, sunEmissiveMaterial);
 sunGroup.add(sun, sunEmissive);
 sun.scale.set(0.6, 0.6, 0.6);
 
-planetNameMap.set(sun, 'Sun');
+planetDataMap.set(sun, {
+    name: 'Sun',
+    distanceToSun: 0,
+    diameter: 1392684,
+    weight: "2.192x1027 tons",
+    rotationPeriod: 25,
+    atmospherePressure: 0,
+});
 
 // MERCURY
 const mercury = new THREE.Mesh(ball, mercuryMaterial);
@@ -97,7 +104,14 @@ mercury.position.x -= sun.scale.x * 4;
 mercury.castShadow = true;
 mercury.receiveShadow = true;
 
-planetNameMap.set(mercury, 'Mercury');
+planetDataMap.set(mercury, {
+    name: 'Mercury',
+    distanceToSun: 0.4,
+    diameter: 4878,
+    weight: "3.302x1023 tons",
+    rotationPeriod: 58.65,
+    atmospherePressure: 0,
+});
 
 planets.push({planet: mercury, moons: [], distance: mercury.position.x, step: 0.005, rotationStep: 0.01, o: 45})
 
@@ -108,7 +122,14 @@ venus.position.x -= sun.scale.x * 10;
 venus.castShadow = true;
 venus.receiveShadow = true;
 
-planetNameMap.set(venus, 'Venus');
+planetDataMap.set(venus, {
+    name: 'Venus',
+    distanceToSun: 0.7,
+    diameter: 12104,
+    weight: "4.869x1024 tons",
+    rotationPeriod: 243,
+    atmospherePressure: 92,
+});
 
 planets.push({planet: venus, moons: [], distance: venus.position.x, step: 0.0025, rotationStep: 0.01, o: 78})
 
@@ -119,7 +140,14 @@ earth.position.x -= sun.scale.x * 16;
 earth.castShadow = true;
 earth.receiveShadow = true;
 
-planetNameMap.set(earth, 'Earth');
+planetDataMap.set(earth, {
+    name: 'Earth',
+    distanceToSun: 1,
+    diameter: 12756,
+    weight: "5.972x1024 tons",
+    rotationPeriod: 1,
+    atmospherePressure: 1,
+});
 
 const moon = new THREE.Mesh(ball, moonMaterial);
 moon.scale.set(0.3,0.3,0.3);
@@ -127,7 +155,14 @@ moon.position.x = earth.position.x / 2;
 moon.castShadow = true;
 moon.receiveShadow = true;
 
-planetNameMap.set(moon, 'Moon');
+planetDataMap.set(moon, {
+    name: 'Moon',
+    distanceToSun: 1,
+    diameter: 3475,
+    weight: "7.349x1022 tons",
+    rotationPeriod: 27.32,
+    atmospherePressure: 0,
+});
 
 planets.push({planet: earth, moons: [
     {planet: moon, distance: moon.position.x, step: 0.001, rotationStep: 0.01, o:0}
@@ -140,7 +175,14 @@ mars.position.x -= sun.scale.x * 22;
 mars.castShadow = true;
 mars.receiveShadow = true;
 
-planetNameMap.set(mars, 'Mars');
+planetDataMap.set(mars, {
+    name: 'Mars',
+    distanceToSun: 1.5,
+    diameter: 6792,
+    weight: "6.39x1023 tons",
+    rotationPeriod: 1.03,
+    atmospherePressure: 0.006,
+});
 
 planets.push({planet: mars, moons: [], distance: mars.position.x, step: 0.005, rotationStep: 0.01, o: 12});
 
@@ -151,7 +193,14 @@ jupiter.position.x -= sun.scale.x * 28;
 jupiter.castShadow = true;
 jupiter.receiveShadow = true;
 
-planetNameMap.set(jupiter, 'Jupiter');
+planetDataMap.set(jupiter, {
+    name: 'Jupiter',
+    distanceToSun: 5.2,
+    diameter: 142984,
+    weight: "1.898x1027 tons",
+    rotationPeriod: 0.41,
+    atmospherePressure: 0,
+});
 
 planets.push({planet: jupiter, moons: [], distance: jupiter.position.x, step: 0.004, rotationStep: 0.01, o: 150});
 
@@ -162,7 +211,14 @@ saturn.position.x -= sun.scale.x * 34;
 saturn.castShadow = true;
 saturn.receiveShadow = true;
 
-planetNameMap.set(saturn, 'Saturn');
+planetDataMap.set(saturn, {
+    name: 'Saturn',
+    distanceToSun: 9.5,
+    diameter: 120536,
+    weight: "5.683x1026 tons",
+    rotationPeriod: 0.45,
+    atmospherePressure: 0,
+});
 
 planets.push({planet: saturn, moons: [], distance: saturn.position.x, step: 0.003, rotationStep: 0.01, o: 118});
 
@@ -173,7 +229,14 @@ uranus.position.x -= sun.scale.x * 40;
 uranus.castShadow = true;
 uranus.receiveShadow = true;
 
-planetNameMap.set(uranus, 'Uranus');
+planetDataMap.set(uranus, {
+    name: 'Uranus',
+    distanceToSun: 19.2,
+    diameter: 51118,
+    weight: "8.681x1025 tons",
+    rotationPeriod: 0.72,
+    atmospherePressure: 0,
+});
 
 planets.push({planet: uranus, moons: [], distance: uranus.position.x, step: 0.002, rotationStep: 0.01, o: 54});
 
@@ -184,7 +247,14 @@ neptune.position.x -= sun.scale.x * 46;
 neptune.castShadow = true;
 neptune.receiveShadow = true;
 
-planetNameMap.set(neptune, 'Neptune');
+planetDataMap.set(neptune, {
+    name: 'Neptune',
+    distanceToSun: 30.1,
+    diameter: 49528,
+    weight: "1.024x1026 tons",
+    rotationPeriod: 0.67,
+    atmospherePressure: 0,
+});
 
 planets.push({planet: neptune, moons: [], distance: uranus.position.x, step: 0.001, rotationStep: 0.01, o: 305});
 
@@ -237,6 +307,22 @@ function resetCameraPosition() {
     camera.lookAt(solarSystem.position);
 } 
 
+function updateFollowedObjectIndicator(data: PlanetDataType | undefined) {
+    let innerHtml: string;
+    if(!data){
+        innerHtml = '';
+    } else {
+        innerHtml = `
+        <h1>${data.name}</h1>
+        <p>Distance to the sun: ${data.distanceToSun} AU</p>
+        <p>Diameter: ${data.diameter} km</p>
+        <p>Weight: ${data.weight}</p>
+        <p>Rotation period: ${data.rotationPeriod} days</p>
+        <p>Atmosphere pressure: ${data.atmospherePressure} bar</p>`;
+    }
+    followedObjectIndicator!.innerHTML = innerHtml;
+}
+
 
 function onObjectClick(event: MouseEvent) {
     // Put the mouse position in a verctor 2
@@ -261,7 +347,7 @@ function onObjectClick(event: MouseEvent) {
             if(followedObjectIndicator) {
                 // Show the followed object indicator and update the text
                 followedObjectIndicator.classList.remove('hidden');
-                followedObjectIndicator.innerText = `${planetNameMap.get(followedPlanet)}`
+                updateFollowedObjectIndicator(planetDataMap.get(followedPlanet));
             }
             // Follow the object
             followObject(followedPlanet);
@@ -271,7 +357,7 @@ function onObjectClick(event: MouseEvent) {
             if(followedObjectIndicator) {
                 // Hide the followed object indicator and reset the text
                 followedObjectIndicator.classList.add('hidden');
-                followedObjectIndicator.innerText = '';
+                updateFollowedObjectIndicator(undefined);
             }
             // Reset the camera position
             resetCameraPosition();
