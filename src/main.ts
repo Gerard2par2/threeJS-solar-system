@@ -2,9 +2,8 @@ import * as Three from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PlanetDataType, PlanetObjectType } from './types/types';
 import { EffectComposer, Pass, RenderPass } from 'postprocessing';
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-
-
+import { EffectPass } from 'postprocessing';
+import { GodRaysEffect } from 'postprocessing';
 // ----- Variables -----
 let paused = false;
 
@@ -25,11 +24,17 @@ let scene = new Three.Scene();
 let camera = new Three.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z = 20;
 
-let renderer = new Three.WebGLRenderer();
+const renderer = new Three.WebGLRenderer({
+    antialias: true,
+    powerPreference: "high-performance",
+});
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = Three.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = true;
+renderer.shadowMap.needsUpdate = true;
+
 
 document.body.appendChild( renderer.domElement );
 
@@ -50,33 +55,70 @@ const sunEmissiveMaterial = new Three.MeshStandardMaterial({
     emissiveIntensity: 1,
 });
 
-const skyBoxMaterial = new Three.MeshBasicMaterial({map: loader.load('/assets/stars.jpg'), side: Three.BackSide});
+const skyBoxMaterial = new Three.MeshBasicMaterial({
+    map: loader.load('/assets/stars.jpg'),
+    side: Three.BackSide });
 
-const mercuryMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/mercury.jpg')});
+const mercuryMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/mercury.jpg'),
+    metalness: 0.2,
+    roughness: 0.8
+});
 
-const venusMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/venus.jpg'),});
+const venusMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/venus.jpg'),
+    metalness: 0.4,
+    roughness: 0.6
+});
 
-const earthMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/earth.jpg')});
+const earthMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/earth.jpg'),
+    metalness: 0.4,
+    roughness: 0.6
+});
 
 const earthCloudsMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/earth_clouds.png'), transparent: true});
+
 earthCloudsMaterial.transparent = true;
 earthCloudsMaterial.opacity = 0.8;
 
-const moonMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/moon.jpg')});
+const moonMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/moon.jpg'),
+    metalness: 0.8,
+    roughness: 0.2
+});
 
-const marsMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/mars.jpg')});
+const marsMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/mars.jpg'),
+    metalness: 0.3,
+    roughness: 0.7
+});
 
-const jupiterMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/jupiter.jpg')});
+const jupiterMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/jupiter.jpg'),
+    metalness: 0.3,
+    roughness: 0.7
+});
 
-const saturnMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/saturn.jpg')});
+const saturnMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/saturn.jpg'),
+    metalness: 0.3,
+    roughness: 0.7
+});
 
-const uranusMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/uranus.jpg')});
+const uranusMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/uranus.jpg'),
+    metalness: 0.3,
+    roughness: 0.7
+});
 
-const neptuneMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/neptune.jpg')});
+const neptuneMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/neptune.jpg'),
+    metalness: 0.3,
+    roughness: 0.7
+});
 
 // ----- Lights -----
 
-const sunLight = new Three.PointLight(0xffffff, 20);
+const sunLight = new Three.PointLight(0xffffff, 10, 0, 1);
 sunLight.position.set(0, 0, 0);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 2048;
@@ -84,7 +126,7 @@ sunLight.shadow.mapSize.height = 2048;
 sunLight.shadow.camera.near = 0.5;
 solarSystem.add(sunLight);
 
-const ambiantLight = new Three.AmbientLight(0xffffff, 0.5);
+const ambiantLight = new Three.AmbientLight(0xffffff, 0.05);
 scene.add(ambiantLight);
 
 // ----- Celestial bodies -----
@@ -106,6 +148,22 @@ planetDataMap.set(sun, {
     atmospherePressure: 0,
 });
 
+
+const godRaysEffect = new GodRaysEffect(camera, sun, {
+    resolutionScale: 1,
+    density: 0.96,
+    decay: 0.94,
+    weight: 0.4,
+    samples: 100,
+    clampMax: 1,
+    width: 1024,
+    height: 1024,
+});
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new EffectPass(camera, godRaysEffect));
+
 // MERCURY
 const mercury = createPlanet(mercuryMaterial, 0.2, sun.scale.x * 4, {
     name: 'Mercury',
@@ -116,7 +174,7 @@ const mercury = createPlanet(mercuryMaterial, 0.2, sun.scale.x * 4, {
     atmospherePressure: 0,
 });
 
-planets.push({planet: mercury, moons: [], distance: mercury.position.x, step: 0.005, rotationStep: 0.01, o: 45})
+planets.push({planet: mercury, moons: [], distance: mercury.position.x, step: 0.008, rotationStep: 0.01, o: 45, excentricity: 0.021})
 
 // VENUS
 const venus = createPlanet(venusMaterial, 0.3, sun.scale.x * 10, {
@@ -128,7 +186,7 @@ const venus = createPlanet(venusMaterial, 0.3, sun.scale.x * 10, {
     atmospherePressure: 92,
 });
 
-planets.push({planet: venus, moons: [], distance: venus.position.x, step: 0.0025, rotationStep: 0.01, o: 78})
+planets.push({planet: venus, moons: [], distance: venus.position.x, step: 0.007, rotationStep: 0.01, o: 78, excentricity: 0.072})
 
 // EARTH
 const earth = createPlanet(earthMaterial, 0.3, sun.scale.x * 16, {
@@ -156,7 +214,7 @@ const moon = createPlanet(moonMaterial, 0.1, earth.position.x / 2, {
 
 planets.push({planet: earth, moons: [
     {planet: moon, distance: moon.position.x, step: 0.001, rotationStep: 0.01, o:0}
-], distance: earth.position.x, step: 0.001, rotationStep: 0.01, o: 0})
+], distance: earth.position.x, step: 0.006, rotationStep: 0.01, o: 0, excentricity: 0.00167})
 
 // MARS
 const mars = createPlanet(marsMaterial, 0.2, sun.scale.x * 22, {
@@ -168,7 +226,7 @@ const mars = createPlanet(marsMaterial, 0.2, sun.scale.x * 22, {
     atmospherePressure: 0.006,
 });
 
-planets.push({planet: mars, moons: [], distance: mars.position.x, step: 0.005, rotationStep: 0.01, o: 12});
+planets.push({planet: mars, moons: [], distance: mars.position.x, step: 0.005, rotationStep: 0.01, o: 12, excentricity: 0.00934});
 
 // JUPITER
 const jupiter = createPlanet(jupiterMaterial, 0.5, sun.scale.x * 28, {
@@ -180,7 +238,14 @@ const jupiter = createPlanet(jupiterMaterial, 0.5, sun.scale.x * 28, {
     atmospherePressure: 0,
 });
 
-planets.push({planet: jupiter, moons: [], distance: jupiter.position.x, step: 0.004, rotationStep: 0.01, o: 150});
+planets.push({planet: jupiter, 
+    moons: [],
+    distance: jupiter.position.x, 
+    step: 0.004, 
+    rotationStep: 0.01, o: 150, 
+    orbitalAngle: 2,
+    excentricity: 0.0048775
+});
 
 // SATURN
 const saturn = createPlanet(saturnMaterial, 0.4, sun.scale.x * 34, {
@@ -192,7 +257,7 @@ const saturn = createPlanet(saturnMaterial, 0.4, sun.scale.x * 34, {
     atmospherePressure: 0,
 });
 
-planets.push({planet: saturn, moons: [], distance: saturn.position.x, step: 0.003, rotationStep: 0.01, o: 118});
+planets.push({planet: saturn, moons: [], distance: saturn.position.x, step: 0.003, rotationStep: 0.01, o: 118, excentricity: 0.005415060});
 
 // URANUS
 const uranus = createPlanet(uranusMaterial, 0.4, sun.scale.x * 40, {
@@ -204,7 +269,7 @@ const uranus = createPlanet(uranusMaterial, 0.4, sun.scale.x * 40, {
     atmospherePressure: 0,
 });
 
-planets.push({planet: uranus, moons: [], distance: uranus.position.x, step: 0.002, rotationStep: 0.01, o: 54});
+planets.push({planet: uranus, moons: [], distance: uranus.position.x, step: 0.002, rotationStep: 0.01, o: 54, excentricity: 0.00469});
 
 // NEPTUNE
 const neptune = createPlanet(neptuneMaterial, 0.4, sun.scale.x * 46, {
@@ -216,7 +281,13 @@ const neptune = createPlanet(neptuneMaterial, 0.4, sun.scale.x * 46, {
     atmospherePressure: 0,
 });
 
-planets.push({planet: neptune, moons: [], distance: uranus.position.x, step: 0.001, rotationStep: 0.01, o: 305});
+planets.push({planet: neptune, moons: [], distance: uranus.position.x, step: 0.001, rotationStep: 0.01, o: 305, excentricity:  0.0009});
+
+// SKYBOX
+
+const skyBox = new Three.Mesh(new Three.SphereGeometry(100, 32, 32), skyBoxMaterial);
+// scene.add(skyBox);
+
 
 // ----- Add to scene -----
 scene.add(solarSystem);
@@ -269,7 +340,7 @@ function createPlanet(material: Three.Material, scale: number, distance: number,
 function followObject(object: Three.Object3D<Three.Object3DEventMap>) {
     camera.position.x = object.position.x;
     camera.position.y = object.position.y;
-    camera.position.z = object.position.z + 2;
+    camera.position.z = object.position.z + object.scale.z + 1;
     camera.lookAt(object.position);
 }
 
@@ -348,14 +419,32 @@ function onObjectClick(event: MouseEvent) {
 }
 
 function rotatePlanet(object: PlanetObjectType) {
-    // Rotate the object using polar coordinates
-    object.planet.position.x = object.distance * Math.cos(object.o);
-    object.planet.position.z = object.distance * Math.sin(object.o);
+    // Calculate the position of the planet along its circular orbit
+    const x = object.distance * Math.cos(object.o);
+    const z = object.distance * Math.sin(object.o);
+
+    // Apply the orbital angle to the position
+    const orbitalAngle = object.orbitalAngle ? object.orbitalAngle : 1; // Adjust this angle for each planet
+
+    const xOrbit = x * Math.cos(orbitalAngle) - z * Math.sin(orbitalAngle) + (object.excentricity ? x * object.excentricity : 0);
+    const zOrbit = x * Math.sin(orbitalAngle) + z * Math.cos(orbitalAngle);
+
+    // Set the position of the planet
+    object.planet.position.x = xOrbit;
+    object.planet.position.z = zOrbit;
+
     // Rotate the planet around itself
     object.planet.rotation.y += object.rotationStep;
-    // Increment the angle
-    object.o = object.o < 360 ? object.o += object.step : 0;
+
+    // Increment the angle for the next frame
+    object.o += object.step;
+
+    // Reset the angle when it completes an orbit
+    if (object.o >= 360) {
+        object.o -= 360;
+    }
 }
+
 
 function render() {
     requestAnimationFrame( render );
@@ -369,6 +458,7 @@ function render() {
     if (!paused) {
 
         sun.rotation.y += 0.001;
+        earthClouds.rotation.y += 0.005;
 
         for(let planetObject of planets) {
             rotatePlanet(planetObject);
@@ -381,7 +471,7 @@ function render() {
     }
 
 
-    renderer.render(scene, camera);
+    composer.render();
 }
 
 render();

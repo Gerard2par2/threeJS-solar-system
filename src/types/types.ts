@@ -5,6 +5,8 @@ export type PlanetObjectType = {
     step: number;
     rotationStep: number;
     o: number;
+    orbitalAngle?: number;
+    excentricity?: number;
 }
 
 export type PlanetDataType = {
