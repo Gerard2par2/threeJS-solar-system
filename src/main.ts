@@ -1,6 +1,9 @@
 import * as Three from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PlanetDataType, PlanetObjectType } from './types/types';
+import { EffectComposer, Pass, RenderPass } from 'postprocessing';
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+
 
 // ----- Variables -----
 let paused = false;
@@ -47,6 +50,8 @@ const sunEmissiveMaterial = new Three.MeshStandardMaterial({
     emissiveIntensity: 1,
 });
 
+const skyBoxMaterial = new Three.MeshBasicMaterial({map: loader.load('/assets/stars.jpg'), side: Three.BackSide});
+
 const mercuryMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/mercury.jpg')});
 
 const venusMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/venus.jpg'),});
@@ -79,7 +84,7 @@ sunLight.shadow.mapSize.height = 2048;
 sunLight.shadow.camera.near = 0.5;
 solarSystem.add(sunLight);
 
-const ambiantLight = new Three.AmbientLight(0xffffff, 0.01);
+const ambiantLight = new Three.AmbientLight(0xffffff, 0.5);
 scene.add(ambiantLight);
 
 // ----- Celestial bodies -----
@@ -136,6 +141,7 @@ const earth = createPlanet(earthMaterial, 0.3, sun.scale.x * 16, {
 });
 
 const earthClouds = new Three.Mesh(ball, earthCloudsMaterial);
+earthClouds.receiveShadow = true;
 earthClouds.scale.set(1.01, 1.01, 1.01);
 earth.add(earthClouds);
 
@@ -308,11 +314,12 @@ function onObjectClick(event: MouseEvent) {
         // Get the first intersected object
         let clickedObject = intersects[0].object;
 
+        if(clickedObject === earthClouds) {
+            clickedObject = earth;
+        }
+
         if(followedPlanet !== clickedObject) {
             // Set followed planter to the clicked object
-            if(clickedObject === earthClouds) {
-                clickedObject = earth;
-            }
             followedPlanet = clickedObject;
             if(followedObjectIndicator) {
                 // Show the followed object indicator and update the text
@@ -374,7 +381,7 @@ function render() {
     }
 
 
-    renderer.render( scene, camera );
+    renderer.render(scene, camera);
 }
 
 render();
