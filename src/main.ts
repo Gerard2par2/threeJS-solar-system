@@ -46,6 +46,20 @@ let ball = new Three.SphereGeometry(1, 32, 32);
 // ----- Materials -----
 
 const loader = new Three.TextureLoader();
+const cubeLoader = new Three.CubeTextureLoader();
+
+const sceneBackground = cubeLoader.load([
+    '/assets/stars.jpg',
+    '/assets/stars.jpg',
+    '/assets/stars.jpg',
+    '/assets/stars.jpg',
+    '/assets/stars.jpg',
+    '/assets/stars.jpg',
+]);
+
+console.log(sceneBackground);
+
+scene.background = sceneBackground;
 
 const sunTextureMaterial = new Three.MeshBasicMaterial({map: loader.load('/assets/sun.jpg'),});
 
@@ -54,10 +68,6 @@ const sunEmissiveMaterial = new Three.MeshStandardMaterial({
     emissive: 0xffffff,
     emissiveIntensity: 1,
 });
-
-// const skyBoxMaterial = new Three.MeshBasicMaterial({
-//     map: loader.load('/assets/stars.jpg'),
-//     side: Three.BackSide });
 
 const mercuryMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/mercury.jpg'),
     metalness: 0.2,
