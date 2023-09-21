@@ -1,7 +1,7 @@
 import * as Three from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PlanetDataType, PlanetObjectType } from './types/types';
-import { EffectComposer, Pass, RenderPass } from 'postprocessing';
+import { EffectComposer, RenderPass } from 'postprocessing';
 import { EffectPass } from 'postprocessing';
 import { GodRaysEffect } from 'postprocessing';
 // ----- Variables -----
@@ -55,9 +55,9 @@ const sunEmissiveMaterial = new Three.MeshStandardMaterial({
     emissiveIntensity: 1,
 });
 
-const skyBoxMaterial = new Three.MeshBasicMaterial({
-    map: loader.load('/assets/stars.jpg'),
-    side: Three.BackSide });
+// const skyBoxMaterial = new Three.MeshBasicMaterial({
+//     map: loader.load('/assets/stars.jpg'),
+//     side: Three.BackSide });
 
 const mercuryMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/mercury.jpg'),
     metalness: 0.2,
@@ -282,11 +282,6 @@ const neptune = createPlanet(neptuneMaterial, 0.4, sun.scale.x * 46, {
 });
 
 planets.push({planet: neptune, moons: [], distance: uranus.position.x, step: 0.001, rotationStep: 0.01, o: 305, excentricity:  0.0009});
-
-// SKYBOX
-
-const skyBox = new Three.Mesh(new Three.SphereGeometry(100, 32, 32), skyBoxMaterial);
-// scene.add(skyBox);
 
 
 // ----- Add to scene -----
