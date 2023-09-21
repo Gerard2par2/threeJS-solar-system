@@ -77,6 +77,14 @@ const venusMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/
     roughness: 0.6
 });
 
+const venusCloudsMaterial = new Three.MeshStandardMaterial({map: loader.load('/assets/venus_clouds.jpg'),
+    metalness: 0.4,
+    roughness: 0.6
+});
+
+venusCloudsMaterial.transparent = true;
+venusCloudsMaterial.opacity = 0.8;
+
 const earthMaterial = new Three.MeshStandardMaterial({
     map: loader.load('/assets/earth.jpg'),
     metalness: 0.4,
@@ -110,6 +118,13 @@ const saturnMaterial = new Three.MeshStandardMaterial({
     map: loader.load('/assets/saturn.jpg'),
     metalness: 0.3,
     roughness: 0.7
+});
+
+const saturnRingMaterial = new Three.MeshStandardMaterial({
+    map: loader.load('/assets/saturn_ring.png'),
+    transparent: true,
+    side: Three.DoubleSide,
+    opacity: 0.8
 });
 
 const uranusMaterial = new Three.MeshStandardMaterial({
@@ -193,6 +208,11 @@ const venus = createPlanet(venusMaterial, 0.3, sun.scale.x * 10, {
     atmospherePressure: 92,
 });
 
+const venusClouds = new Three.Mesh(ball, venusCloudsMaterial);
+venusClouds.receiveShadow = true;
+venusClouds.scale.set(1.01, 1.01, 1.01);
+venus.add(venusClouds);
+
 planets.push({planet: venus, moons: [], distance: venus.position.x, step: 0.007, rotationStep: 0.01, o: 78, excentricity: 0.072})
 
 // EARTH
@@ -263,6 +283,10 @@ const saturn = createPlanet(saturnMaterial, 0.4, sun.scale.x * 34, {
     rotationPeriod: 10756,
     atmospherePressure: 0,
 });
+
+const saturnRing = new Three.Mesh(new Three.RingGeometry(saturn.scale.x * 2, saturn.scale.x*2 + 1), saturnRingMaterial);
+saturnRing.rotation.x = 0.5 * Math.PI;
+saturn.add(saturnRing);
 
 planets.push({planet: saturn, moons: [], distance: saturn.position.x, step: 0.003, rotationStep: 0.01, o: 118, excentricity: 0.005415060});
 
@@ -393,6 +417,10 @@ function onObjectClick(event: MouseEvent) {
             clickedObject = earth;
         }
 
+        if(clickedObject === venusClouds) {
+            clickedObject = venus;
+        }
+
         if(followedPlanet !== clickedObject) {
             // Set followed planter to the clicked object
             followedPlanet = clickedObject;
@@ -463,6 +491,7 @@ function render() {
 
         sun.rotation.y += 0.001;
         earthClouds.rotation.y += 0.005;
+        venusClouds.rotation.y += 0.005;
 
         for(let planetObject of planets) {
             rotatePlanet(planetObject);
