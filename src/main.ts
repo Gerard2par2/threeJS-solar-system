@@ -57,7 +57,6 @@ const sceneBackground = cubeLoader.load([
     '/assets/stars.jpg',
 ]);
 
-console.log(sceneBackground);
 
 scene.background = sceneBackground;
 
@@ -328,6 +327,8 @@ window.addEventListener('keydown', (event) => {
 renderer.domElement.addEventListener('click', onObjectClick, false);
 
 // ----- Functions -----
+const controlsPopup = document.getElementById('controlsPopup') as HTMLElement 
+controlsPopup.onclick = () => controlsPopup.classList.add('hidden');
 
 function createPlanet(material: Three.Material, scale: number, distance: number, data: PlanetDataType): Three.Mesh {
     const planet = new Three.Mesh(ball, material);
