@@ -1,9 +1,8 @@
 import * as Three from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PlanetDataType, PlanetObjectType } from './types/types';
-import { EffectComposer, RenderPass } from 'postprocessing';
-import { EffectPass } from 'postprocessing';
-import { GodRaysEffect } from 'postprocessing';
+import { EffectComposer, RenderPass, EffectPass, GodRaysEffect } from 'postprocessing';
+
 // ----- Variables -----
 let paused = false;
 
@@ -156,7 +155,6 @@ planetDataMap.set(sun, {
     rotationPeriod: 0,
     atmospherePressure: 0,
 });
-
 
 const godRaysEffect = new GodRaysEffect(camera, sun, {
     resolutionScale: 1,
